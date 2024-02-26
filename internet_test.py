@@ -22,28 +22,29 @@ print('------------------------------------------------')
 # Test execution
 try:
     while True:
-        # Calculate internet speeds in bytes per second
-        download_bytes = st.download()
-        upload_bytes = st.upload()
-        aux_download = download_bytes / 10000000  # Convert bytes to megabytes
-        aux_upload = upload_bytes / 10000000  # Convert bytes to megabytes
+        # Calculate internet speeds in megabytes per second
+        aux_download = st.download()
+        aux_upload = st.upload()
         aux_ping = st.results.ping
+        # Convert speeds to megabits per second
+        download_mbps = f"{round(aux_download * 1.25e-7, 2)} Mbps"
+        upload_mbps = f"{round(aux_upload * 1.25e-7, 2)} Mbps"
         # Record measurement times
         tz = pytz.timezone('America/Sao_Paulo')  # Brasília time zone (GMT-3)
         aux_datetime = datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S")
         # Store in lists
-        download.append(aux_download)
-        upload.append(aux_upload)
+        download.append(download_mbps)
+        upload.append(upload_mbps)
         ping.append(aux_ping)
         measurement_times.append(aux_datetime)
         
         # Print partial reading
         print(f"Date and time of reading: {aux_datetime} | "
-              f"Download Speed: {aux_download:.2f} MB/s | "
-              f"Upload Speed: {aux_upload:.2f} MB/s | "
+              f"Download Speed: {download_mbps} | "
+              f"Upload Speed: {upload_mbps} | "
               f"Ping: {aux_ping:.2f} ms", end='\r')
         
-        # Check if 9 minutes have passed since the last graph update
+        # Check if 3 minutes have passed since the last graph update
         if len(measurement_times) % 3 == 0:  # Update graph every 3 readings (9 minutes)
             print('\nGenerating graph...\n')
             # Create dataframe with network speed data
@@ -70,17 +71,17 @@ try:
             fig2, ax2 = plt.subplots(figsize=(10, 5))
             fig3, ax3 = plt.subplots(figsize=(10, 5))
             # Plotting the graphs
-            ax1.plot(tests, download, color='r', label=f'Download Speed. Average: {mean_download:.2f} MB/s')
+            ax1.plot(tests, download, color='r', label=f'Download Speed. Average: {mean_download:.2f} Mbps')
             ax1.scatter(tests, download, color='r')
             for i, txt in enumerate(download):
-                ax1.annotate(f'{txt:.2f}', (tests[i], download[i]), textcoords="offset points", xytext=(0,10), ha='center')
-            ax1.set(xlabel="Tests", ylabel="Download Speed in MB/s")
+                ax1.annotate(f'{txt}', (tests[i], download[i]), textcoords="offset points", xytext=(0,10), ha='center')
+            ax1.set(xlabel="Tests", ylabel="Download Speed in Mbps")
             ax1.legend(loc='best')
-            ax2.plot(tests, upload, color='b', label=f'Upload Speed. Average: {mean_upload:.2f} MB/s')
+            ax2.plot(tests, upload, color='b', label=f'Upload Speed. Average: {mean_upload:.2f} Mbps')
             ax2.scatter(tests, upload, color='b')
             for i, txt in enumerate(upload):
-                ax2.annotate(f'{txt:.2f}', (tests[i], upload[i]), textcoords="offset points", xytext=(0,10), ha='center')
-            ax2.set(xlabel="Tests", ylabel="Upload Speed in MB/s")
+                ax2.annotate(f'{txt}', (tests[i], upload[i]), textcoords="offset points", xytext=(0,10), ha='center')
+            ax2.set(xlabel="Tests", ylabel="Upload Speed in Mbps")
             ax2.legend(loc='best')
             ax3.plot(tests, ping, color='m', label=f'Ping (ms). Average: {mean_ping:.2f} ms')
             ax3.scatter(tests, ping, color='m')
